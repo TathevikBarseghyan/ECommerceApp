@@ -4,9 +4,7 @@ using ECommerceApp.Domain.Entities;
 using ECommerceApp.WebAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace ECommerceApp.WebAPI.Controllers
 {
@@ -43,8 +41,9 @@ namespace ECommerceApp.WebAPI.Controllers
 
             var loggedInUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            var customer = await _customerService.GetCustomerByUserIdAsync(loggedInUserId);
 
-            if (userRole != "Admin" && order.Customer.Id != loggedInUserId)
+            if (userRole != "Admin" && customer.IdentityUserId != loggedInUserId)
                 return Forbid("You can only view your own orders.");
 
             return Ok(_mapper.Map<OrderResponseModel>(order));
